@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Modern Digital Clock</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #fff;
+            overflow: hidden;
+            padding: 20px;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            max-width: 700px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .clock-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .time {
+            font-size: 5rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .date {
+            font-size: 1.8rem;
+            opacity: 0.9;
+            line-height: 1.2;
+        }
+
+        .day {
+            font-size: 1.5rem;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+
+        .seconds-display {
+            font-size: 1.2rem;
+            opacity: 0.7;
+            margin-top: 5px;
+            line-height: 1.2;
+        }
+
+        .timezone-info {
+            font-size: 1rem;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        select, button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 44px;
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+            padding-right: 45px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        select option {
+            background: #2a2a2a;
+            color: white;
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        select optgroup {
+            background: #1a1a1a;
+            color: #fdbb2d;
+            font-weight: bold;
+            padding: 8px;
+        }
+
+        select optgroup option {
+            padding-left: 20px;
+            background: #2a2a2a;
+        }
+
+        select:hover, button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        select:focus, button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+        }
+
+        .format-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .format-toggle button {
+            flex: 1;
+            max-width: 180px;
+        }
+
+        .format-toggle button.active {
+            background: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-box:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 30px 20px;
+                gap: 20px;
+                border-radius: 15px;
+                max-width: 95%;
+            }
+            
+            .time {
+                font-size: 4rem;
+            }
+            
+            .date {
+                font-size: 1.5rem;
+            }
+            
+            .day {
+                font-size: 1.3rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            select, button {
+                width: 100%;
+                max-width: 280px;
+            }
+            
+            .format-toggle {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .format-toggle button {
+                max-width: 280px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+                min-height: 100vh;
+                height: 100%;
+            }
+            
+            .container {
+                padding: 25px 15px;
+                gap: 15px;
+                border-radius: 12px;
+                margin: 10px 0;
+            }
+            
+            .time {
+                font-size: 3rem;
+                letter-spacing: 2px;
+            }
+            
+            .date {
+                font-size: 1.3rem;
+            }
+            
+            .day {
+                font-size: 1.1rem;
+            }
+            
+            .seconds-display {
+                font-size: 1rem;
+            }
+            
+            select, button {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+                min-height: 44px;
+            }
+            
+            .format-toggle button {
+                padding: 12px 15px;
+            }
+        }
+
+        /* Small mobile phones */
+        @media (max-width: 360px) {
+            .container {
+                padding: 20px 12px;
+                gap: 12px;
+            }
+            
+            .time {
+                font-size: 2.5rem;
+                letter-spacing: 1px;
+            }
+            
+            .date {
+                font-size: 1.1rem;
+            }
+            
+            .day {
+                font-size: 1rem;
+            }
+            
+            select, button {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        .colon {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .footer {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        select {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="clock-container">
+            <div class="time" id="time">00:00:00</div>
+            <div class="date" id="date">January 1, 2023</div>
+            <div class="day" id="day">Sunday</div>
+            <div class="seconds-display" id="seconds">Seconds: 00</div>
+            <div class="timezone-info" id="timezone">Local Time</div>
+        </div>
+        
+        <div class="format-toggle">
+            <button id="format12" class="active">
+                <i class="fas fa-clock"></i> 12-Hour
+            </button>
+            <button id="format24">
+                <i class="fas fa-hourglass"></i> 24-Hour
+            </button>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="timezone-search" class="search-box" placeholder="Search timezones...">
+        </div>
+        
+        <div class="controls">
+            <select id="timezone-select" size="1">
+                <optgroup label="Popular Locations">
+                    <option value="local">Local Time</option>
+                    <option value="UTC">UTC / GMT</option>
+                </optgroup>
+                
+                <optgroup label="North America">
+                    <option value="America/New_York">New York (EST/EDT)</option>
+                    <option value="America/Chicago">Chicago (CST/CDT)</option>
+                    <option value="America/Denver">Denver (MST/MDT)</option>
+                    <option value="America/Los_Angeles">Los Angeles (PST/PDT)</option>
+                    <option value="America/Toronto">Toronto (EST/EDT)</option>
+                    <option value="America/Vancouver">Vancouver (PST/PDT)</option>
+                    <option value="America/Mexico_City">Mexico City (CST)</option>
+                </optgroup>
+                
+                <optgroup label="South America">
+                    <option value="America/Sao_Paulo">São Paulo (BRT)</option>
+                    <option value="America/Buenos_Aires">Buenos Aires (ART)</option>
+                    <option value="America/Lima">Lima (PET)</option>
+                    <option value="America/Bogota">Bogotá (COT)</option>
+                    <option value="America/Santiago">Santiago (CLT)</option>
+                </optgroup>
+                
+                <optgroup label="Europe">
+                    <option value="Europe/London">London (GMT/BST)</option>
+                    <option value="Europe/Paris">Paris (CET/CEST)</option>
+                    <option value="Europe/Berlin">Berlin (CET/CEST)</option>
+                    <option value="Europe/Madrid">Madrid (CET/CEST)</option>
+                    <option value="Europe/Rome">Rome (CET/CEST)</option>
+                    <option value="Europe/Amsterdam">Amsterdam (CET/CEST)</option>
+                    <option value="Europe/Moscow">Moscow (MSK)</option>
+                    <option value="Europe/Athens">Athens (EET/EEST)</option>
+                    <option value="Europe/Istanbul">Istanbul (TRT)</option>
+                </optgroup>
+                
+                <optgroup label="Africa">
+                    <option value="Africa/Cairo">Cairo (EET)</option>
+                    <option value="Africa/Johannesburg">Johannesburg (SAST)</option>
+                    <option value="Africa/Lagos">Lagos (WAT)</option>
+                    <option value="Africa/Casablanca">Casablanca (WEST)</option>
+                    <option value="Africa/Nairobi">Nairobi (EAT)</option>
+                </optgroup>
+                
+                <optgroup label="Middle East">
+                    <option value="Asia/Dubai">Dubai (GST)</option>
+                    <option value="Asia/Riyadh">Riyadh (AST)</option>
+                    <option value="Asia/Tehran">Tehran (IRST)</option>
+                    <option value="Asia/Jerusalem">Jerusalem (IST/IDT)</option>
+                    <option value="Asia/Baghdad">Baghdad (AST)</option>
+                </optgroup>
+                
+                <optgroup label="Asia">
+                    <option value="Asia/Kolkata">Mumbai (IST)</option>
+                    <option value="Asia/Dhaka">Dhaka (BST)</option>
+                    <option value="Asia/Bangkok">Bangkok (ICT)</option>
+                    <option value="Asia/Singapore">Singapore (SGT)</option>
+                    <option value="Asia/Shanghai">Shanghai (CST)</option>
+                    <option value="Asia/Hong_Kong">Hong Kong (HKT)</option>
+                    <option value="Asia/Tokyo">Tokyo (JST)</option>
+                    <option value="Asia/Seoul">Seoul (KST)</option>
+                    <option value="Asia/Manila">Manila (PHT)</option>
+                    <option value="Asia/Jakarta">Jakarta (WIB)</option>
+                </optgroup>
+                
+                <optgroup label="Australia & Pacific">
+                    <option value="Australia/Sydney">Sydney (AEST/AEDT)</option>
+                    <option value="Australia/Melbourne">Melbourne (AEST/AEDT)</option>
+                    <option value="Australia/Perth">Perth (AWST)</option>
+                    <option value="Australia/Adelaide">Adelaide (ACST/ACDT)</option>
+                    <option value="Pacific/Auckland">Auckland (NZST/NZDT)</option>
+                    <option value="Pacific/Fiji">Fiji (FJT)</option>
+                    <option value="Pacific/Honolulu">Honolulu (HST)</option>
+                </optgroup>
+            </select>
+            
+            <button id="fullscreen-btn">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+        </div>
+        
+        <div class="footer">
+            Modern Digital Clock &copy; 2023 | 50+ Timezones Available
+        </div>
+    </div>
+
+    <script>
+
+        const timeElement = document.getElementById('time');
+        const dateElement = document.getElementById('date');
+        const dayElement = document.getElementById('day');
+        const secondsElement = document.getElementById('seconds');
+        const timezoneElement = document.getElementById('timezone');
+        const timezoneSelect = document.getElementById('timezone-select');
+        const timezoneSearch = document.getElementById('timezone-search');
+        const format12Btn = document.getElementById('format12');
+        const format24Btn = document.getElementById('format24');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+        let is24HourFormat = false;
+        let selectedTimezone = 'local';
+
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+        const originalOptions = timezoneSelect.innerHTML;
+
+        timezoneSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            if (searchTerm === '') {
+                timezoneSelect.innerHTML = originalOptions;
+                return;
+            }
+
+            const tempSelect = document.createElement('select');
+            tempSelect.innerHTML = originalOptions;
+            
+            const filteredOptions = [];
+
+            for (let group of tempSelect.getElementsByTagName('optgroup')) {
+                const groupLabel = group.label;
+                let hasMatchingOptions = false;
+                const matchingOptions = [];
+                
+                for (let option of group.getElementsByTagName('option')) {
+                    if (option.text.toLowerCase().includes(searchTerm)) {
+                        matchingOptions.push(option.outerHTML);
+                        hasMatchingOptions = true;
+                    }
+                }
+                
+                if (hasMatchingOptions) {
+                    filteredOptions.push(`<optgroup label="${groupLabel}">${matchingOptions.join('')}</optgroup>`);
+                }
+            }
+            
+            timezoneSelect.innerHTML = filteredOptions.join('');
+        });
+
+        function updateClock() {
+            let now;
+
+            if (selectedTimezone === 'local') {
+                now = new Date();
+                timezoneElement.textContent = 'Local Time';
+            } else if (selectedTimezone === 'UTC') {
+                now = new Date();
+                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                now = new Date(utc);
+                timezoneElement.textContent = 'UTC / GMT';
+            } else {
+                try {
+                    now = new Date(new Date().toLocaleString("en-US", {timeZone: selectedTimezone}));
+                    const timezoneName = selectedTimezone.split('/')[1].replace('_', ' ');
+                    timezoneElement.textContent = timezoneName;
+                } catch (e) {
+                    console.error('Error with timezone:', e);
+                    now = new Date();
+                    timezoneElement.textContent = 'Error: Invalid Timezone';
+                }
+            }
+            
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
+            let ampm = '';
+            
+            if (!is24HourFormat) {
+                ampm = hours >= 12 ? ' PM' : ' AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12; 
+            }
+
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            
+            timeElement.innerHTML = `${hours}<span class="colon">:</span>${minutes}<span class="colon">:</span>${seconds}${ampm}`;
+
+            secondsElement.textContent = `Seconds: ${seconds}`;
+
+            const day = days[now.getDay()];
+            const date = now.getDate();
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+            
+            dateElement.textContent = `${month} ${date}, ${year}`;
+            dayElement.textContent = day;
+
+            secondsElement.classList.add('pulse');
+            setTimeout(() => secondsElement.classList.remove('pulse'), 500);
+        }
+
+        format12Btn.addEventListener('click', () => {
+            is24HourFormat = false;
+            format12Btn.classList.add('active');
+            format24Btn.classList.remove('active');
+            updateClock();
+        });
+
+        format24Btn.addEventListener('click', () => {
+            is24HourFormat = true;
+            format24Btn.classList.add('active');
+            format12Btn.classList.remove('active');
+            updateClock();
+        });
+
+        timezoneSelect.addEventListener('change', () => {
+            selectedTimezone = timezoneSelect.value;
+            updateClock();
+        });
+
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i> Exit';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                }
+            }
+        });
+
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                updateClock();
+            }
+        });
+    </script>
+</body>
+</html>
